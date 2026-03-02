@@ -1,0 +1,93 @@
+'use client'
+
+import { useState, useTransition } from "react"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { updateGrievanceStatus } from "@/actions/grievances"
+import {
+    GRIEVANCE_STATUS_LABELS,
+    PRIORITY_LABELS,
+    PRIORITY_COLORS,
+} from "@/lib/constants"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Loader2 } from "lucide-react"
+import type { GrievanceStatus } from "@/lib/supabase/types"
+
+const STATUS_TRANSITIONS: { value: GrievanceStatus; label: string; variant: "default" | "outline" | "destructive" | "secondary" }[] = [
+    { value: "in_progress", label: "Mark In Progress", variant: "secondary" },
+    { value: "under_review", label: "Mark Under Review", variant: "outline" },
+    { value: "resolved", label: "Mark Resolved ✓", variant: "default" },
+    { value: "rejected", label: "Reject", variant: "destructive" },
+    { value: "escalated", label: "Escalate", variant: "outline" },
+]
+
+export function GrievanceStatusUpdater({
+    grievanceId,
+    currentStatus,
+}: {
+    grievanceId: string
+    currentStatus: GrievanceStatus
+}) {
+    const [notes, setNotes] = useState("")
+    const [isPending, startTransition] = useTransition()
+    const router = useRouter()
+
+    function handleUpdate(status: GrievanceStatus) {
+        if ((status === "resolved" || status === "rejected") && !notes.trim()) {
+            toast.error("Please add resolution notes before closing the grievance.")
+            return
+        }
+
+        startTransition(async () => {
+            const result = await updateGrievanceStatus({
+                grievance_id: grievanceId,
+                status,
+                resolution_notes: notes.trim() || undefined,
+            })
+
+            if (result.error) {
+                toast.error(result.error)
+                return
+            }
+
+            toast.success(`Grievance marked as ${GRIEVANCE_STATUS_LABELS[status]}`)
+            setNotes("")
+            router.refresh()
+        })
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="resolution-notes">
+                    Resolution Notes
+                    {["resolved", "rejected"].includes(currentStatus) ? "" : " (required for Resolve/Reject)"}
+                </Label>
+                <Textarea
+                    id="resolution-notes"
+                    placeholder="Describe the resolution, findings, or reason for rejection…"
+                    rows={4}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    disabled={isPending}
+                />
+            </div>
+            <div className="flex flex-wrap gap-2">
+                {STATUS_TRANSITIONS.filter((t) => t.value !== currentStatus).map((t) => (
+                    <Button
+                        key={t.value}
+                        variant={t.variant}
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() => handleUpdate(t.value)}
+                    >
+                        {isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                        {t.label}
+                    </Button>
+                ))}
+            </div>
+        </div>
+    )
+}
