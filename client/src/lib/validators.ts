@@ -54,6 +54,7 @@ export const createGrievanceSchema = z.object({
         .min(10, "Description must be at least 10 characters")
         .max(2000),
     lodged_via: z.enum(["web", "chatbot", "api"]).default("web"),
+    evidence_urls: z.array(z.string().url()).max(5).optional(),
 })
 
 export const updateGrievanceStatusSchema = z.object({
@@ -67,6 +68,11 @@ export const updateGrievanceStatusSchema = z.object({
         "escalated",
     ]),
     resolution_notes: z.string().max(2000).optional(),
+})
+
+export const updateGrievancePrioritySchema = z.object({
+    grievance_id: z.string().uuid(),
+    priority: z.enum(["low", "medium", "high", "urgent"]),
 })
 
 // ── Feedback Schemas ─────────────────────────────────────────────────────────────
@@ -109,6 +115,7 @@ export type SignInInput = z.infer<typeof signInSchema>
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
 export type CreateGrievanceInput = z.infer<typeof createGrievanceSchema>
 export type UpdateGrievanceStatusInput = z.infer<typeof updateGrievanceStatusSchema>
+export type UpdateGrievancePriorityInput = z.infer<typeof updateGrievancePrioritySchema>
 export type SubmitFeedbackInput = z.infer<typeof submitFeedbackSchema>
 export type CreateFAQInput = z.infer<typeof createFAQSchema>
 export type UpdateFAQInput = z.infer<typeof updateFAQSchema>

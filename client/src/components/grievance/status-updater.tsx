@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { updateGrievanceStatus } from "@/actions/grievances"
+import { updateGrievanceStatus, updateGrievancePriority } from "@/actions/grievances"
 import {
     GRIEVANCE_STATUS_LABELS,
     PRIORITY_LABELS,
@@ -12,8 +12,16 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import { Loader2 } from "lucide-react"
-import type { GrievanceStatus } from "@/lib/supabase/types"
+import type { GrievanceStatus, PriorityLevel } from "@/lib/supabase/types"
+
+const PRIORITY_LEVELS: { value: PriorityLevel; label: string }[] = [
+    { value: "low", label: "Low" },
+    { value: "medium", label: "Medium" },
+    { value: "high", label: "High" },
+    { value: "urgent", label: "Urgent" },
+]
 
 const STATUS_TRANSITIONS: { value: GrievanceStatus; label: string; variant: "default" | "outline" | "destructive" | "secondary" }[] = [
     { value: "in_progress", label: "Mark In Progress", variant: "secondary" },
@@ -26,13 +34,28 @@ const STATUS_TRANSITIONS: { value: GrievanceStatus; label: string; variant: "def
 export function GrievanceStatusUpdater({
     grievanceId,
     currentStatus,
+    currentPriority,
 }: {
     grievanceId: string
     currentStatus: GrievanceStatus
+    currentPriority: PriorityLevel
 }) {
     const [notes, setNotes] = useState("")
     const [isPending, startTransition] = useTransition()
+    const [isPriorityPending, startPriorityTransition] = useTransition()
     const router = useRouter()
+
+    function handlePriorityUpdate(priority: PriorityLevel) {
+        startPriorityTransition(async () => {
+            const result = await updateGrievancePriority(grievanceId, priority)
+            if (result.error) {
+                toast.error(result.error)
+                return
+            }
+            toast.success(`Priority set to ${PRIORITY_LABELS[priority]}`)
+            router.refresh()
+        })
+    }
 
     function handleUpdate(status: GrievanceStatus) {
         if ((status === "resolved" || status === "rejected") && !notes.trim()) {
@@ -87,6 +110,27 @@ export function GrievanceStatusUpdater({
                         {t.label}
                     </Button>
                 ))}
+            </div>
+
+            <Separator className="my-2" />
+
+            <div className="space-y-2">
+                <Label>Change Priority</Label>
+                <div className="flex flex-wrap gap-2">
+                    {PRIORITY_LEVELS.map((p) => (
+                        <Button
+                            key={p.value}
+                            variant={p.value === currentPriority ? "default" : "outline"}
+                            size="sm"
+                            disabled={isPriorityPending || p.value === currentPriority}
+                            onClick={() => handlePriorityUpdate(p.value)}
+                            className={p.value !== currentPriority ? PRIORITY_COLORS[p.value] : ""}
+                        >
+                            {isPriorityPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                            {p.label}
+                        </Button>
+                    ))}
+                </div>
             </div>
         </div>
     )

@@ -12,10 +12,17 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Link from "next/link"
-import { Download, Search, X } from "lucide-react"
+import { Download, Search, X, AlertTriangle } from "lucide-react"
 import type { Grievance, GrievanceStatus, PriorityLevel, Profile } from "@/lib/supabase/types"
 
 export const metadata: Metadata = { title: "Manage Grievances" }
+
+const ACTIVE_STATUSES = new Set(["open", "in_progress", "under_review", "escalated"])
+const SLA_MS = 7 * 24 * 60 * 60 * 1000
+
+function isSLABreached(createdAt: string, status: string) {
+    return ACTIVE_STATUSES.has(status) && Date.now() - new Date(createdAt).getTime() > SLA_MS
+}
 
 const STATUS_OPTIONS = [
     { value: "", label: "All" },
@@ -25,6 +32,7 @@ const STATUS_OPTIONS = [
     { value: "escalated", label: "Escalated" },
     { value: "resolved", label: "Resolved" },
     { value: "rejected", label: "Rejected" },
+    { value: "sla_breached", label: "⚠ SLA Breached" },
 ]
 
 type GrievanceRow = Pick<Grievance,
@@ -50,7 +58,12 @@ export default async function ManageGrievancesPage({
         .order("created_at", { ascending: false })
         .range(from, to)
 
-    if (status) {
+    if (status === "sla_breached") {
+        const slaThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        query = query
+            .in("status", ["open", "in_progress", "under_review", "escalated"])
+            .lt("created_at", slaThreshold)
+    } else if (status) {
         query = query.eq("status", status as GrievanceStatus)
     }
 
@@ -148,10 +161,19 @@ export default async function ManageGrievancesPage({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {grievances.map((g) => (
-                            <TableRow key={g.id}>
+                        {grievances.map((g) => {
+                            const breached = isSLABreached(g.created_at, g.status)
+                            return (
+                            <TableRow key={g.id} className={breached ? "bg-red-50/40 dark:bg-red-950/10" : ""}>
                                 <TableCell className="font-mono text-xs font-semibold">
-                                    #{g.ticket_number}
+                                    <div className="flex items-center gap-1.5">
+                                        #{g.ticket_number}
+                                        {breached && (
+                                            <span title="SLA breached — open &gt;7 days">
+                                                <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                                            </span>
+                                        )}
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     <p className="font-medium">{g.profiles?.full_name ?? "—"}</p>
@@ -179,7 +201,7 @@ export default async function ManageGrievancesPage({
                                     </Button>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )})}
                         {grievances.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">

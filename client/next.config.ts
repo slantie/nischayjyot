@@ -1,6 +1,8 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+    // Required for Docker — produces a self-contained server in .next/standalone
+    output: "standalone",
     // Allow images from Supabase Storage (used for CCTV/evidence uploads)
     images: {
         remotePatterns: [

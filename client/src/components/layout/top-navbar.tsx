@@ -4,8 +4,9 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
 import {
-    Bell, LogOut, User, ChevronDown, Search, Menu, X,
+    Bell, LogOut, User, ChevronDown, Search, Menu, X, Moon, Sun,
     Home, FileText, Bot, HelpCircle, MessageSquare,
     LayoutDashboard, BarChart3, Star, BookOpen,
 } from "lucide-react"
@@ -51,6 +52,7 @@ export function TopNavbar({
 }) {
     const pathname = usePathname()
     const router = useRouter()
+    const { theme, setTheme } = useTheme()
     const [search, setSearch] = useState("")
     const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -138,6 +140,18 @@ export function TopNavbar({
                         />
                     </div>
                 </form>
+
+                {/* Dark mode toggle */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    aria-label="Toggle dark mode"
+                >
+                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                </Button>
 
                 {/* User dropdown */}
                 <DropdownMenu>

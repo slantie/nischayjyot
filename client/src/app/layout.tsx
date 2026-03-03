@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
+import { ThemeProvider } from "next-themes"
 import { Toaster } from "sonner"
 import "./globals.css"
 
@@ -17,6 +18,10 @@ export const metadata: Metadata = {
   description:
     "NishchayJyot is a citizen grievance redressal portal for traffic challan disputes. Lodge, track, and resolve your challan grievances with AI assistance. Built for SSIP Hackathon 2023.",
   keywords: ["ONOC", "challan grievance", "traffic fine", "e-challan", "NishchayJyot", "SSIP"],
+  icons: {
+    icon: "/nj-logo.ico",
+    shortcut: "/nj-logo.ico",
+  },
   openGraph: {
     title: "NishchayJyot – Challan Grievance Portal",
     description: "Lodge and track traffic challan grievances with AI-powered support.",
@@ -32,9 +37,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} font-sans antialiased`}>
-        {children}
-        <Toaster richColors position="top-right" closeButton />
+      <body className={`${poppins.variable} font-sans antialiased`} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+        </ThemeProvider>
       </body>
     </html>
   )

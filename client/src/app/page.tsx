@@ -9,11 +9,8 @@ import {
   ArrowUpRight,
   Star,
   ChevronDown,
-  FileText,
-  Search,
-  CheckCircle2,
-  Scale,
 } from "lucide-react";
+import { ProcessFlow } from "@/components/home/process-flow";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -83,7 +80,7 @@ export default function HomePage() {
         {/* Soft glow blobs */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-32 -top-32 h-[32rem] w-[32rem] rounded-full bg-primary/5 blur-[80px]"
+          className="pointer-events-none absolute -right-32 -top-32 h-128 w-lg rounded-full bg-primary/5 blur-[80px]"
         />
         <div
           aria-hidden
@@ -177,21 +174,21 @@ export default function HomePage() {
 
             <div className="flex h-72 divide-x">
               {/* Sidebar mock */}
-              <div className="flex w-44 flex-shrink-0 flex-col bg-sidebar py-3 px-2 gap-0.5">
-                <div className="mb-2 flex items-center gap-2 px-2 py-2">
-                  <div className="h-4 w-4 rounded bg-primary/70" />
-                  <div className="h-2.5 w-20 rounded bg-white/25" />
+              <div className="flex w-44 shrink-0 flex-col bg-[#f0f3f5] py-3 px-2 gap-0.5">
+                <div className="mb-2 flex items-center gap-2 px-2 py-2 text-black">
+                  <div className="h-4 w-4 rounded bg-primary/70 " />
+                  <div className="h-2.5 w-20 rounded bg-black/20 " />
                 </div>
                 {mockSidebarItems.map(({ label, active }) => (
                   <div
                     key={label}
-                    className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 ${active ? "bg-accent/80" : ""}`}
+                    className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 ${active ? "bg-black/10" : ""}`}
                   >
                     <div
-                      className={`h-2.5 w-2.5 rounded-sm ${active ? "bg-sidebar-primary-foreground" : "bg-white/30"}`}
+                      className={`h-2.5 w-2.5 rounded-sm  ${active ? "bg-primary/70" : " bg-black/20 "}`}
                     />
                     <span
-                      className={`text-xs ${active ? "font-medium text-sidebar-primary-foreground" : "text-white/50"}`}
+                      className={`text-xs  ${active ? "font-medium text-sidebar-primary-foreground" : "text-black "}`}
                     >
                       {label}
                     </span>
@@ -280,10 +277,10 @@ export default function HomePage() {
       {/* ── Process Flow ── */}
       <section
         id="how-it-works"
-        className="bg-muted/40 px-4 py-20 sm:px-6 lg:px-8"
+        className="relative overflow-hidden bg-muted/30 px-4 py-24 sm:px-6 lg:px-8"
       >
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
+        <div className="relative mx-auto max-w-6xl">
+          <div className="mb-16 text-center">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">
               Process
             </p>
@@ -295,55 +292,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Chevron flow — desktop */}
-          <div className="hidden md:flex items-stretch">
-            {processFlow.map((step, i) => (
-              <div
-                key={step.title}
-                className={`flex flex-1 flex-col items-center justify-center px-8 py-8 text-center ${step.bg} ${i === 0 ? "chevron-start" : i === processFlow.length - 1 ? "chevron-end" : "chevron-step"} -ml-4 first:ml-0`}
-              >
-                <div
-                  className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/60 ring-2 ${step.ring}`}
-                >
-                  <step.icon className={`h-5 w-5 ${step.iconColor}`} />
-                </div>
-                <p className={`text-sm font-bold ${step.titleColor}`}>
-                  {step.title}
-                </p>
-                <p
-                  className={`mt-1.5 text-xs leading-relaxed ${step.descColor}`}
-                >
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Vertical flow — mobile */}
-          <div className="flex flex-col gap-3 md:hidden">
-            {processFlow.map((step, i) => (
-              <div
-                key={step.title}
-                className={`flex items-start gap-4 rounded-xl ${step.bg} px-5 py-4`}
-              >
-                <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/60 ring-2 ${step.ring}`}
-                >
-                  <step.icon className={`h-4 w-4 ${step.iconColor}`} />
-                </div>
-                <div>
-                  <p className={`text-sm font-bold ${step.titleColor}`}>
-                    {i + 1}. {step.title}
-                  </p>
-                  <p
-                    className={`mt-0.5 text-xs leading-relaxed ${step.descColor}`}
-                  >
-                    {step.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ProcessFlow />
         </div>
       </section>
 
@@ -419,7 +368,7 @@ export default function HomePage() {
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
                   {faq.q}
-                  <ChevronDown className="ml-4 h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+                  <ChevronDown className="ml-4 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
                 </summary>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {faq.a}
@@ -473,8 +422,15 @@ export default function HomePage() {
             {/* Brand */}
             <div className="col-span-2 lg:col-span-1">
               <Link href="/" className="mb-4 flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-                  <Scale className="h-3.5 w-3.5 text-primary-foreground" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-md">
+                  <Image
+                    src="/nj-logo.png"
+                    alt="NishchayJyot"
+                    width={140}
+                    height={49}
+                    className="h-7 w-7 object-contain"
+                    priority
+                  />
                 </div>
                 <span className="text-sm font-bold text-foreground">
                   NishchayJyot
@@ -612,49 +568,6 @@ const features = [
     title: "Secure & Private",
     description:
       "Row-level security ensures your data is visible only to you and authorized administrators.",
-  },
-];
-
-const processFlow = [
-  {
-    icon: FileText,
-    title: "File Complaint",
-    desc: "Raise your complaint through the NishchayJyot portal — quick, secure registration.",
-    bg: "bg-blue-50",
-    ring: "ring-primary/30",
-    iconColor: "text-primary",
-    titleColor: "text-primary",
-    descColor: "text-primary/70",
-  },
-  {
-    icon: Search,
-    title: "Assessment",
-    desc: "Your complaint is investigated and checked for validity and eligibility.",
-    bg: "bg-sky-50",
-    ring: "ring-sky-400/40",
-    iconColor: "text-sky-600",
-    titleColor: "text-sky-700",
-    descColor: "text-sky-600/70",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Resolution",
-    desc: "Once your complaint is resolved, you will be notified immediately.",
-    bg: "bg-teal-50",
-    ring: "ring-teal-400/40",
-    iconColor: "text-teal-600",
-    titleColor: "text-teal-700",
-    descColor: "text-teal-600/70",
-  },
-  {
-    icon: Star,
-    title: "Feedback",
-    desc: "Provide feedback on your experience and help us improve the service.",
-    bg: "bg-amber-50",
-    ring: "ring-amber-400/40",
-    iconColor: "text-amber-600",
-    titleColor: "text-amber-700",
-    descColor: "text-amber-600/70",
   },
 ];
 

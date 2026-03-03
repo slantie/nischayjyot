@@ -29,6 +29,8 @@ export const metadata: Metadata = { title: "Admin Dashboard" }
 export default async function AdminDashboardPage() {
     const admin = createAdminClient()
 
+    const slaThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
     // Parallel fetch all analytics
     const [
         { count: totalGrievances },
@@ -37,6 +39,7 @@ export default async function AdminDashboardPage() {
         { count: totalChallans },
         { count: unpaidChallans },
         { count: totalCitizens },
+        { count: slaBreached },
         { data: recentGrievances },
         { data: statusBreakdown },
         { data: cityBreakdown },
@@ -47,6 +50,9 @@ export default async function AdminDashboardPage() {
         admin.from("challans").select("id", { count: "exact", head: true }),
         admin.from("challans").select("id", { count: "exact", head: true }).eq("payment_status", "unpaid"),
         admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "citizen"),
+        admin.from("grievances").select("id", { count: "exact", head: true })
+            .in("status", ["open", "in_progress", "under_review"])
+            .lt("created_at", slaThreshold),
         admin.from("grievances")
             .select("id, ticket_number, category, status, priority, created_at, profiles!citizen_id(full_name)")
             .order("created_at", { ascending: false })
@@ -90,7 +96,7 @@ export default async function AdminDashboardPage() {
                 <KpiCard title="Total Grievances" value={totalGrievances ?? 0} icon={FileText} color="text-blue-600" bg="bg-blue-50 dark:bg-blue-950/30" delta={`${openGrievances ?? 0} pending`} />
                 <KpiCard title="Resolved" value={resolvedGrievances ?? 0} icon={Check} color="text-green-600" bg="bg-green-50 dark:bg-green-950/30" delta={`${resolutionRate}% resolution rate`} />
                 <KpiCard title="Total Challans" value={totalChallans ?? 0} icon={Car} color="text-purple-600" bg="bg-purple-50 dark:bg-purple-950/30" delta={`${unpaidChallans ?? 0} unpaid`} />
-                <KpiCard title="Registered Citizens" value={totalCitizens ?? 0} icon={Users} color="text-orange-600" bg="bg-orange-50 dark:bg-orange-950/30" delta="total accounts" />
+                <KpiCard title="SLA Breached" value={slaBreached ?? 0} icon={AlertTriangle} color="text-red-600" bg="bg-red-50 dark:bg-red-950/30" delta="open &gt;7 days — action needed" alert />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -243,18 +249,26 @@ export default async function AdminDashboardPage() {
 }
 
 function KpiCard({
-    title, value, icon: Icon, color, bg, delta
+    title, value, icon: Icon, color, bg, delta, alert: isAlert
 }: {
-    title: string; value: number; icon: React.ElementType; color: string; bg: string; delta?: string
+    title: string; value: number; icon: React.ElementType; color: string; bg: string; delta?: string; alert?: boolean
 }) {
     return (
-        <Card>
+        <Card className={isAlert && value > 0 ? "border-red-300 dark:border-red-800" : ""}>
             <CardContent className="flex items-center gap-4 p-6">
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${bg}`}>
+                <div className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${bg}`}>
                     <Icon className={`h-6 w-6 ${color}`} />
+                    {isAlert && value > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
+                        </span>
+                    )}
                 </div>
                 <div>
-                    <p className="text-2xl font-bold">{value.toLocaleString()}</p>
+                    <p className={`text-2xl font-bold ${isAlert && value > 0 ? "text-red-600" : ""}`}>
+                        {value.toLocaleString()}
+                    </p>
                     <p className="text-sm text-muted-foreground">{title}</p>
                     {delta && <p className="text-xs text-muted-foreground/70 mt-0.5">{delta}</p>}
                 </div>

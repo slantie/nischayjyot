@@ -25,6 +25,7 @@ import {
     Bot,
 } from "lucide-react"
 import { GrievanceStatusUpdater } from "@/components/grievance/status-updater"
+import { EvidenceViewer } from "@/components/grievance/evidence-viewer"
 import type {
     Grievance,
     Profile,
@@ -139,6 +140,18 @@ export default async function GrievanceReviewPage({
                                 </>
                             )}
 
+                            {grievance.evidence_urls && grievance.evidence_urls.length > 0 && (
+                                <>
+                                    <Separator />
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
+                                            Evidence ({grievance.evidence_urls.length} file{grievance.evidence_urls.length > 1 ? "s" : ""})
+                                        </p>
+                                        <EvidenceViewer urls={grievance.evidence_urls} />
+                                    </div>
+                                </>
+                            )}
+
                             {grievance.resolution_notes && (
                                 <>
                                     <Separator />
@@ -198,6 +211,7 @@ export default async function GrievanceReviewPage({
                             <GrievanceStatusUpdater
                                 grievanceId={grievance.id}
                                 currentStatus={grievance.status as GrievanceStatus}
+                                currentPriority={grievance.priority as PriorityLevel}
                             />
                         </CardContent>
                     </Card>

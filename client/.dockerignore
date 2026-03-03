@@ -1,0 +1,19 @@
+node_modules
+.next
+.git
+.gitignore
+
+# Env files — never bake secrets into the image
+.env
+.env.local
+.env.*.local
+
+# Dev / editor noise
+*.md
+.vscode
+.idea
+*.log
+
+# Test / lint artifacts
+coverage
+.eslintcache

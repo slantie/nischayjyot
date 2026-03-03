@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import { createGrievanceSchema, updateGrievanceStatusSchema } from "@/lib/validators"
+import { createGrievanceSchema, updateGrievanceStatusSchema, updateGrievancePrioritySchema } from "@/lib/validators"
 import type { CreateGrievanceInput, UpdateGrievanceStatusInput } from "@/lib/validators"
 import { grievanceLogger } from "@/lib/logger"
 
@@ -16,7 +16,7 @@ export async function createGrievance(input: CreateGrievanceInput) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: "Unauthorized" }
 
-    const { challan_id, challan_number, category, description, lodged_via } = parsed.data
+    const { challan_id, challan_number, category, description, lodged_via, evidence_urls } = parsed.data
     grievanceLogger.info("createGrievance", { category, lodged_via })
 
     // .limit(1) then [0] — avoids .single() PostgREST coercion issue with proxy
@@ -29,6 +29,7 @@ export async function createGrievance(input: CreateGrievanceInput) {
             category,
             description,
             lodged_via: lodged_via ?? "web",
+            ...(evidence_urls && evidence_urls.length > 0 ? { evidence_urls } : {}),
         })
         .select("id, ticket_number")
 
@@ -200,4 +201,44 @@ export async function updateGrievanceStatus(input: UpdateGrievanceStatusInput) {
     revalidatePath("/manage-grievances")
     revalidatePath(`/track-grievance/${grievance_id}`)
     return { data }
+}
+
+export async function updateGrievancePriority(grievanceId: string, priority: string) {
+    const parsed = updateGrievancePrioritySchema.safeParse({ grievance_id: grievanceId, priority })
+    if (!parsed.success) {
+        return { error: parsed.error.issues[0].message }
+    }
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: "Unauthorized" }
+
+    const { data: profileRows } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .limit(1)
+
+    const profile = profileRows?.[0]
+    if (!profile || !["admin", "super_admin"].includes(profile.role)) {
+        return { error: "Forbidden" }
+    }
+
+    const { error } = await supabase
+        .from("grievances")
+        .update({ priority: parsed.data.priority, updated_at: new Date().toISOString() })
+        .eq("id", grievanceId)
+
+    if (error) return { error: error.message }
+
+    await supabase.from("grievance_timeline").insert({
+        grievance_id: grievanceId,
+        action: `Priority set to ${parsed.data.priority}`,
+        actor_id: user.id,
+        actor_role: profile.role,
+    })
+
+    revalidatePath(`/manage-grievances/${grievanceId}`)
+    revalidatePath("/manage-grievances")
+    return { data: null }
 }

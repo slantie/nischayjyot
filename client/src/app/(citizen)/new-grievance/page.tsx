@@ -4,13 +4,13 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
-import { Loader2, ArrowLeft, Send, Bot, FileText, Info } from "lucide-react"
+import { Loader2, ArrowLeft, Send, Bot, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { createGrievance } from "@/actions/grievances"
+import { EvidenceUpload } from "@/components/citizen/evidence-upload"
 
 const CATEGORIES = [
     { value: "false_challan", label: "False Challan", desc: "Challan issued for a violation you did not commit" },
@@ -28,6 +28,7 @@ export default function NewGrievancePage() {
     const [category, setCategory] = useState<Category | "">("")
     const [description, setDescription] = useState("")
     const [challanNumber, setChallanNumber] = useState("")
+    const [evidenceUrls, setEvidenceUrls] = useState<string[]>([])
     const [isPending, setIsPending] = useState(false)
 
     async function handleSubmit(e: FormEvent) {
@@ -48,6 +49,7 @@ export default function NewGrievancePage() {
             description: description.trim(),
             challan_number: challanNumber.trim() || undefined,
             lodged_via: "web",
+            evidence_urls: evidenceUrls.length > 0 ? evidenceUrls : undefined,
         })
         setIsPending(false)
 
@@ -154,6 +156,21 @@ export default function NewGrievancePage() {
                             {description.length} chars
                         </span>
                     </div>
+                </div>
+
+                {/* Evidence Upload */}
+                <div className="space-y-2">
+                    <Label className="text-sm font-semibold">
+                        Evidence{" "}
+                        <span className="font-normal text-muted-foreground">(Optional — up to 5 files)</span>
+                    </Label>
+                    <EvidenceUpload
+                        onUploadComplete={setEvidenceUrls}
+                        disabled={isPending}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        Attach photos, screenshots, or PDFs — e.g. bank receipts, CCTV screenshots, location proof.
+                    </p>
                 </div>
 
                 {/* Info note */}
