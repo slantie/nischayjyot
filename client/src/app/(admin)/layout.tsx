@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
-import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { DashboardShell } from "@/components/layout/dashboard-shell"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -32,13 +31,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             variant="admin"
             userName={profile.full_name}
             pendingCount={pendingCount ?? 0}
-            sidebar={
-                <AdminSidebar
-                    pendingCount={pendingCount ?? 0}
-                    adminName={profile.full_name}
-                    role={profile.role}
-                />
-            }
         >
             {children}
         </DashboardShell>

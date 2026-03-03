@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { CitizenSidebar } from "@/components/layout/citizen-sidebar"
 import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { getNotifications } from "@/actions/notifications"
 
@@ -30,9 +29,6 @@ export default async function CitizenLayout({ children }: { children: React.Reac
             variant="citizen"
             userName={profile?.full_name ?? "Citizen"}
             notifCount={unreadCount}
-            sidebar={
-                <CitizenSidebar unreadCount={unreadCount} />
-            }
         >
             {children}
         </DashboardShell>

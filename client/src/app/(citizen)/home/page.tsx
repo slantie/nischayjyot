@@ -25,7 +25,9 @@ import {
     Bell,
     ArrowRight,
     Car,
+    Plus,
 } from "lucide-react"
+import { ChallanLookupWidget } from "@/components/citizen/challan-lookup"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -118,27 +120,42 @@ export default async function CitizenHomePage() {
                 />
             </div>
 
-            {/* AI Chatbot CTA */}
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/70 p-6 text-primary-foreground">
-                <div aria-hidden className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/5" />
-                <div aria-hidden className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-white/5" />
-                <div className="relative flex items-center justify-between gap-4">
-                    <div>
-                        <div className="mb-1 flex items-center gap-2">
-                            <Bot className="h-5 w-5" />
-                            <span className="font-semibold">AI Grievance Assistant</span>
-                        </div>
-                        <p className="text-sm text-primary-foreground/80">
-                            Let our AI chatbot guide you through your challan grievance in minutes.
-                        </p>
+            {/* Quick Actions */}
+            <div className="grid gap-3 sm:grid-cols-3">
+                <Link href="/chatbot" className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/8 ring-1 ring-primary/15 group-hover:bg-primary/12">
+                        <Bot className="h-5 w-5 text-primary" />
                     </div>
-                    <Button variant="secondary" size="sm" className="shrink-0 gap-1" asChild>
-                        <Link href="/chatbot">
-                            Chat now <ArrowRight className="h-3 w-3" />
-                        </Link>
-                    </Button>
-                </div>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold">AI Assistant</p>
+                        <p className="text-xs text-muted-foreground">Lodge via chatbot</p>
+                    </div>
+                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                </Link>
+                <Link href="/new-grievance" className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-50 ring-1 ring-green-200 group-hover:bg-green-100">
+                        <Plus className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold">New Grievance</p>
+                        <p className="text-xs text-muted-foreground">Direct form</p>
+                    </div>
+                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/50 group-hover:text-green-600 transition-colors" />
+                </Link>
+                <Link href="/track-grievance" className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted ring-1 ring-border group-hover:bg-muted/80">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold">Track Grievances</p>
+                        <p className="text-xs text-muted-foreground">View all tickets</p>
+                    </div>
+                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+                </Link>
             </div>
+
+            {/* Challan Lookup */}
+            <ChallanLookupWidget />
 
             {/* Pending Payments */}
             {unpaidChallans.length > 0 && (

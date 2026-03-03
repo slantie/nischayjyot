@@ -4,28 +4,12 @@ import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import {
-    Loader2,
-    Mail,
-    Lock,
-    User,
-    Phone,
-    Car,
-    CreditCard,
-} from "lucide-react"
+import { Loader2, Mail, Lock, User, Phone, Car, CreditCard, ArrowRight } from "lucide-react"
 
 import { signUp } from "@/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 type FieldErrors = Partial<
@@ -50,7 +34,6 @@ export default function RegisterPage() {
             dl_number: (fd.get("dl_number") as string).trim() || "",
         }
 
-        // Light client-side checks
         const e2: FieldErrors = {}
         if (values.full_name.length < 2) e2.full_name = "Name must be at least 2 characters"
         if (!values.phone.match(/^(\+91)?[6-9]\d{9}$/)) e2.phone = "Enter a valid 10-digit Indian mobile number"
@@ -74,104 +57,105 @@ export default function RegisterPage() {
             return
         }
 
-        toast.success("Account created! Check your email to verify your account.")
+        toast.success("Account created! You can now sign in.")
         router.push("/login")
     }
 
-    const field = (name: keyof FieldErrors) =>
+    const fieldError = (name: keyof FieldErrors) =>
         errors[name] ? <p className="text-xs text-destructive mt-1">{errors[name]}</p> : null
 
     return (
-        <Card className="w-full max-w-md shadow-xl">
-            <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl">Create your account</CardTitle>
-                <CardDescription>
+        <div className="w-full max-w-sm">
+            {/* Heading */}
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">Create your account</h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">
                     Register to lodge and track your ONOC challan grievances
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Full Name */}
-                    <div className="space-y-2">
-                        <Label htmlFor="full_name">Full Name</Label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="full_name" name="full_name" placeholder="Raj Kumar Patel" className="pl-9" disabled={isPending} />
-                        </div>
-                        {field("full_name")}
-                    </div>
-
-                    {/* Phone */}
-                    <div className="space-y-2">
-                        <Label htmlFor="phone">Mobile Number</Label>
-                        <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="phone" name="phone" type="tel" placeholder="9876543210" className="pl-9" disabled={isPending} />
-                        </div>
-                        {field("phone")}
-                    </div>
-
-                    {/* Email */}
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email Address</Label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="email" name="email" type="email" placeholder="you@example.com" className="pl-9" disabled={isPending} autoComplete="email" />
-                        </div>
-                        {field("email")}
-                    </div>
-
-                    {/* Password */}
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="password" name="password" type="password" placeholder="Min. 8 characters" className="pl-9" disabled={isPending} autoComplete="new-password" />
-                        </div>
-                        {field("password")}
-                    </div>
-
-                    {/* Vehicle Number */}
-                    <div className="space-y-2">
-                        <Label htmlFor="vehicle_number">
-                            Vehicle Number{" "}
-                            <Badge variant="outline" className="ml-1 text-xs font-normal">Optional</Badge>
-                        </Label>
-                        <div className="relative">
-                            <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="vehicle_number" name="vehicle_number" placeholder="GJ01UV9043" className="pl-9 uppercase" disabled={isPending} />
-                        </div>
-                        {field("vehicle_number")}
-                    </div>
-
-                    {/* DL Number */}
-                    <div className="space-y-2">
-                        <Label htmlFor="dl_number">
-                            Driving License No.{" "}
-                            <Badge variant="outline" className="ml-1 text-xs font-normal">Optional</Badge>
-                        </Label>
-                        <div className="relative">
-                            <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input id="dl_number" name="dl_number" placeholder="GJ01 20XXXXXXXX" className="pl-9" disabled={isPending} />
-                        </div>
-                        {field("dl_number")}
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={isPending}>
-                        {isPending ? (
-                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating account…</>
-                        ) : (
-                            "Create Account"
-                        )}
-                    </Button>
-                </form>
-            </CardContent>
-            <CardFooter className="justify-center text-sm text-muted-foreground">
-                <p>
-                    Already have an account?{" "}
-                    <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link>
                 </p>
-            </CardFooter>
-        </Card>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Full Name */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="full_name" className="text-sm font-medium">Full Name</Label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="full_name" name="full_name" placeholder="Raj Kumar Patel" className="pl-9 h-10" disabled={isPending} />
+                    </div>
+                    {fieldError("full_name")}
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="phone" className="text-sm font-medium">Mobile Number</Label>
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="phone" name="phone" type="tel" placeholder="9876543210" className="pl-9 h-10" disabled={isPending} />
+                    </div>
+                    {fieldError("phone")}
+                </div>
+
+                {/* Email */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="email" name="email" type="email" placeholder="you@example.com" className="pl-9 h-10" disabled={isPending} autoComplete="email" />
+                    </div>
+                    {fieldError("email")}
+                </div>
+
+                {/* Password */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="password" name="password" type="password" placeholder="Min. 8 characters" className="pl-9 h-10" disabled={isPending} autoComplete="new-password" />
+                    </div>
+                    {fieldError("password")}
+                </div>
+
+                {/* Vehicle Number */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="vehicle_number" className="flex items-center gap-1.5 text-sm font-medium">
+                        Vehicle Number
+                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">Optional</Badge>
+                    </Label>
+                    <div className="relative">
+                        <Car className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="vehicle_number" name="vehicle_number" placeholder="GJ01UV9043" className="pl-9 h-10 uppercase" disabled={isPending} />
+                    </div>
+                    {fieldError("vehicle_number")}
+                </div>
+
+                {/* DL Number */}
+                <div className="space-y-1.5">
+                    <Label htmlFor="dl_number" className="flex items-center gap-1.5 text-sm font-medium">
+                        Driving License No.
+                        <Badge variant="outline" className="h-4 px-1.5 text-[10px] font-normal">Optional</Badge>
+                    </Label>
+                    <div className="relative">
+                        <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input id="dl_number" name="dl_number" placeholder="GJ01 20XXXXXXXX" className="pl-9 h-10" disabled={isPending} />
+                    </div>
+                    {fieldError("dl_number")}
+                </div>
+
+                <Button type="submit" className="w-full h-10 gap-2 font-semibold" disabled={isPending}>
+                    {isPending ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Creating account…</>
+                    ) : (
+                        <>Create Account <ArrowRight className="h-4 w-4" /></>
+                    )}
+                </Button>
+            </form>
+
+            <div className="mt-6 border-t pt-5 text-center">
+                <p className="text-sm text-muted-foreground">
+                    Already have an account?{" "}
+                    <Link href="/login" className="font-semibold text-primary hover:underline">Sign in</Link>
+                </p>
+            </div>
+        </div>
     )
 }

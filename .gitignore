@@ -1,3 +1,6 @@
 .env
+.claude/
 AGENT_INSTRUCTIONS.md
 CLAUDE.md
+Grievance_Arch.png
+SSIP_Grievance.pdf
