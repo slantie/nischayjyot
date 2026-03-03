@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(pnpm dlx shadcn@latest add dialog switch --yes)",
-      "Bash(pnpm dlx shadcn@latest add dialog switch)",
-      "Bash(ls \"d:/Slantie@LDRP/3rd Semester/SSIP/Project 1/NischayJyot/client/src/app/\\(admin\\)/\")"
-    ]
-  }
-}
